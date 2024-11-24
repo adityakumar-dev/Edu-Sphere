@@ -22,6 +22,7 @@ class TopAppbar extends StatelessWidget {
       actions: actions,
       centerTitle: centerTitle,
       titleSpacing: 0,
+      scrolledUnderElevation: 0.0,
       automaticallyImplyLeading: false,
       titleTextStyle: _titleTextStyle(context),
       systemOverlayStyle: _statusBarDecoration(context),

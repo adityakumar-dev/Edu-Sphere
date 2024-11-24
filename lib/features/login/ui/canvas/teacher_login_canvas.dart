@@ -8,15 +8,15 @@ class TeacherLoginCanvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(8.0),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TeacherLoginFormBanner(),
+            const TeacherLoginFormBanner(),
             TeacherLoginForm(),
-            TeacherRegisterationPrompt(),
+            const TeacherRegisterationPrompt(),
           ],
         ),
       ),
@@ -43,7 +43,7 @@ class TeacherRegisterationPrompt extends StatelessWidget {
   void _openForm(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const TeacherRegisterationScreen(),
+        builder: (context) => TeacherRegisterationScreen(),
       ),
     );
   }
@@ -66,4 +66,3 @@ class TeacherRegisterationPrompt extends StatelessWidget {
     return const TextStyle(fontWeight: FontWeight.bold);
   }
 }
-
