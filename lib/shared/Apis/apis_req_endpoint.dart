@@ -1,5 +1,6 @@
 class ApisReqEndpoint {
-  static const String _baseUrl = "http://localhost:3000";
+  static const String _baseUrl =
+      "https://enabled-flowing-bedbug.ngrok-free.app";
   static uploadStudentAssignment() {
     return "$_baseUrl/student/upload-assignments";
   }

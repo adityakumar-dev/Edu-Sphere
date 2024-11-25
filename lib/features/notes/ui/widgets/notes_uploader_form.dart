@@ -1,27 +1,44 @@
 import 'package:edusphere_mobile/core/widgets/file_uploader_feild.dart';
+import 'package:edusphere_mobile/shared/Apis/apis_req_endpoint.dart';
+import 'package:edusphere_mobile/shared/providers/Auth/teacher_auth_provider.dart';
+import 'package:edusphere_mobile/shared/providers/upload_data_provider/student_assignment_provider.dart';
 import 'package:edusphere_mobile/shared/widgets/text_entry.dart';
 import 'package:flutter/material.dart';
-
-final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-final TextEditingController _subjectCode = TextEditingController();
-final TextEditingController _notesFile = TextEditingController();
+import 'package:provider/provider.dart';
+import 'package:path/path.dart' as p;
 
 class NotesUploaderForm extends StatelessWidget {
-  const NotesUploaderForm({super.key});
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  NotesUploaderForm({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SubjectCodeEntry(controller: _subjectCode),
-          NotesUploaderFeild(controller: _notesFile),
-          UploadNotesButton(onPressed: () {}),
-        ],
-      ),
+    return Consumer<TeacherAuthProvider>(
+      builder: (_, value, __) {
+        return Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SubjectCodeEntry(controller: value.subjectCodeController),
+              NotesUploaderFeild(controller: value.filesController),
+              UploadNotesButton(onPressed: () async {
+                final tProvider =
+                    Provider.of<TeacherAuthProvider>(context, listen: false);
+                final provider =
+                    Provider.of<UploadDataProvider>(context, listen: false);
+                await provider.uploadDataWithHeaders(
+                    context,
+                    tProvider.subjectCode,
+                    tProvider.tl.email,
+                    tProvider.tl.name,
+                    ApisReqEndpoint.uploadTeacherNotes());
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -74,7 +91,16 @@ class NotesUploaderFeild extends StatelessWidget {
     return FileUploaderFeild(
       labelText: "Notes File",
       controller: controller,
-      onPressed: () {},
+      onPressed: () async {
+        final provider =
+            Provider.of<UploadDataProvider>(context, listen: false);
+        await provider.pickPdfFile();
+        if (provider.currentFile != null) {
+          Provider.of<TeacherAuthProvider>(context, listen: false)
+              .filesController
+              .text = p.basename(provider.currentFile!.path);
+        }
+      },
     );
   }
 }

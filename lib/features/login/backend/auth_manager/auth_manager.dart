@@ -36,12 +36,13 @@ class AuthManagerLogin {
             .eq('email', stl.email)
             .single();
 
-        Navigator.pop(context);
-        Provider.of<StudentAuthProvider>(context, listen: false)
-            .init(StudentModel.fromMap(data));
+        final provider =
+            Provider.of<StudentAuthProvider>(context, listen: false);
+        provider.init(StudentModel.fromMap(data));
         await AppLocalData.storeAuthState(AppConstants.activeUser);
         await AppLocalData.storeStudentModel(StudentModel.fromMap(data));
-
+        await provider.initStudentUser();
+        Navigator.pop(context);
         return {'success': true, 'data': data};
       } else {
         Navigator.pop(context);
@@ -77,12 +78,14 @@ class AuthManagerLogin {
             .eq('email', tl.email)
             .single();
 
-        Navigator.pop(context);
-
-        Provider.of<TeacherAuthProvider>(context, listen: false)
-            .init(TeacherModel.fromMap(data));
+        final provider =
+            Provider.of<TeacherAuthProvider>(context, listen: false);
+        provider.init(TeacherModel.fromMap(data));
+        await provider.initTeacherUser();
         await AppLocalData.storeAuthState(AppConstants.activeUser);
         await AppLocalData.storeTeacherModel(TeacherModel.fromMap(data));
+        Navigator.pop(context);
+
         return {'success': true, 'data': data};
       } else {
         Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'package:edusphere_mobile/core/theme/app_theme_data.dart';
 import 'package:edusphere_mobile/features/greeting/welcome_screen.dart';
 import 'package:edusphere_mobile/shared/Models/student_model.dart';
 import 'package:edusphere_mobile/shared/Models/teacher_model.dart';
+import 'package:edusphere_mobile/shared/providers/upload_data_provider/student_assignment_provider.dart';
 import 'package:edusphere_mobile/shared/providers/Auth/student_auth_provider.dart';
 import 'package:edusphere_mobile/shared/providers/Auth/teacher_auth_provider.dart';
 import 'package:edusphere_mobile/shared/providers/edusphere_auth_manager_provider.dart';
@@ -37,6 +38,9 @@ class MainApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => TeacherAuthProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UploadDataProvider(),
         ),
       ],
       child: MaterialApp(

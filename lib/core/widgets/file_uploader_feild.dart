@@ -38,7 +38,7 @@ class FileUploaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () {},
+      onPressed: onPressed,
       icon: const Icon(Icons.upload),
     );
   }

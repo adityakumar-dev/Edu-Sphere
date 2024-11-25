@@ -2,8 +2,11 @@ import 'package:edusphere_mobile/features/home/screens/student_home_screen.dart'
 import 'package:edusphere_mobile/shared/Constants/app_constants.dart';
 import 'package:edusphere_mobile/shared/Models/student_model.dart';
 import 'package:edusphere_mobile/shared/Storage/app_local_data.dart';
+import 'package:edusphere_mobile/shared/providers/Auth/student_auth_provider.dart';
+import 'package:edusphere_mobile/shared/providers/Auth/teacher_auth_provider.dart';
 import 'package:edusphere_mobile/shared/widgets/shared_ui_item.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../shared/Models/teacher_model.dart';
@@ -19,12 +22,10 @@ class AuthManager {
   }) async {
     loaderDailog(context);
     try {
-      // First attempt to insert student data into the database
       final insertResponse =
           await supabaseAuth.from('STUDENT').insert(stModel.toMap());
       print("Inner response is : $insertResponse");
 
-      // If data insertion is successful, proceed to sign up
       if (insertResponse == null) {
         final response = await supabaseAuth.auth.signUp(
           email: stModel.email,
@@ -32,11 +33,10 @@ class AuthManager {
         );
 
         if (response.user != null) {
-          // If sign-up is successful, store the student model locally
           await AppLocalData.storeStudentModel(stModel);
+          await Provider.of<StudentAuthProvider>(context, listen: false)
+              .initStudentUser();
           Navigator.pop(context);
-
-          // Navigate to Student Home Screen
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -93,6 +93,8 @@ class AuthManager {
           // If sign-up is successful, navigate to Teacher Home Screen
           Navigator.pop(context);
           await AppLocalData.storeTeacherModel(tModel);
+          await Provider.of<TeacherAuthProvider>(context, listen: false)
+              .initTeacherUser();
           await AppLocalData.storeAuthState(AppConstants.activeUser);
           Navigator.push(
             context,

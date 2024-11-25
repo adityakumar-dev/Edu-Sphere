@@ -1,5 +1,13 @@
+import 'dart:convert';
+
+import 'package:edusphere_mobile/shared/Apis/apis_req_endpoint.dart';
+import 'package:edusphere_mobile/shared/Storage/app_local_data.dart';
+import 'package:edusphere_mobile/shared/tokens_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:edusphere_mobile/shared/Models/student_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 
 class StudentAuthProvider extends ChangeNotifier {
   // Model for storing data
@@ -10,7 +18,10 @@ class StudentAuthProvider extends ChangeNotifier {
     semester: '',
     email: '',
   );
-
+  String _subjectCode = "";
+  String get subjectCode => _subjectCode;
+  String _fileName = "";
+  String get fileName => _fileName;
   String? _password;
   String? get password => _password;
 
@@ -23,7 +34,9 @@ class StudentAuthProvider extends ChangeNotifier {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
-
+  final TextEditingController subjectCodeController = TextEditingController();
+  final TextEditingController asssignmnetFileController =
+      TextEditingController();
   StudentModel get stl => _stl;
 
   // Constructor to add listeners
@@ -36,6 +49,12 @@ class StudentAuthProvider extends ChangeNotifier {
         .addListener(() => updatePassword(passwordController.text));
     confirmPasswordController
         .addListener(() => updatePassword(confirmPasswordController.text));
+    subjectCodeController
+        .addListener(() => updateSubjectCode(subjectCodeController.text));
+    asssignmnetFileController.addListener(() {
+      _fileName = asssignmnetFileController.text;
+      notifyListeners();
+    });
   }
 
   // Initialize model from an existing object
@@ -64,6 +83,11 @@ class StudentAuthProvider extends ChangeNotifier {
     passwordController.clear();
     confirmPasswordController.clear();
 
+    notifyListeners();
+  }
+
+  void updateSubjectCode(String txt) {
+    _subjectCode = txt;
     notifyListeners();
   }
 
@@ -110,5 +134,44 @@ class StudentAuthProvider extends ChangeNotifier {
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> initStudentUser() async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApisReqEndpoint.studentTokens()),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "email": stl.email,
+          "name": stl.name,
+          "rollNumber": stl.rollNumber,
+        }),
+      );
+      print(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body)['data'];
+        TokensManager.accessToken = data['data']['accessToken'];
+        TokensManager.refreshToken = data['data']['refreshToken'];
+        await AppLocalData.storeTokens();
+        if (kDebugMode) {
+          print(data);
+        }
+        Fluttertoast.showToast(
+            msg: "Tokens successfully retrieved!",
+            backgroundColor: Colors.green);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Failed to get tokens from server!",
+            backgroundColor: Colors.red);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      Fluttertoast.showToast(
+          msg: "Unexpected Error!", backgroundColor: Colors.red);
+    }
   }
 }
